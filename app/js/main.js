@@ -15,7 +15,10 @@ async function drawCards(deckId, pullNum) {
     const response = await fetch(
       `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${pullNum}`
     );
-    return await response.json();
+    const data = await response.json();
+    let cards = await data.cards;
+    console.log(`cards pulled: ${cards}`);
+    return await cards;
   } catch (error) {
     console.error("error drawing cards");
   }
@@ -28,15 +31,26 @@ async function newGame() {
 async function dealerHand(id) {
   const cards = await drawCards(id, 2);
   let blackJack;
-  for (let i = 0; i < cards.length; i++)
-    (cards) => {
-      cards[i].value == "ACE" ||
-      cards[i].value == "KING" ||
-      cards[i].value == "QUEEN" ||
-      cards[i].value == "JACK"
-        ? (blackJack = true)
-        : (blackjack = false);
-    };
-  return blackJack;
+  blackJack =
+    cards.filter(
+      (card) =>
+        card.value === "ACE" ||
+        card.value === "KING" ||
+        card.value === "QUEEN" ||
+        card.value === "JACK"
+    ).length == 2;
+  if (blackJack) {
+    return blackJack;
+  } else {
+    return cards;
+  }
 }
-console.log(await dealerHand("i1y36ts23k8g"));
+let id = await createNewDeck();
+let testDeal = await dealerHand(id);
+let DblackJack = false;
+if (testDeal === true) {
+  DblackJack = true;
+}
+if (DblackJack === true) {
+  console.log(DblackJack);
+}
