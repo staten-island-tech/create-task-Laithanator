@@ -1,6 +1,7 @@
 const DOMSelectors = {
   player: document.getElementById("player"),
   dealer: document.getElementById("dealer"),
+  buttons: document.getElementById("buttons"),
 };
 async function createNewDeck() {
   try {
@@ -34,40 +35,14 @@ async function newGame() {
 }
 async function dealerHand(id) {
   const cards = await drawCards(id, 2);
-  let blackJack;
-  blackJack =
-    cards.filter(
-      (card) =>
-        card.value === "ACE" ||
-        card.value === "KING" ||
-        card.value === "QUEEN" ||
-        card.value === "JACK"
-    ).length == 2;
-  if (blackJack) {
-    return blackJack;
-  } else {
-    return cards;
-  }
+  return cards;
 }
 async function playerHand(id) {
   const cards = await drawCards(id, 2);
-  let blackJack;
-  blackJack =
-    cards.filter(
-      (card) =>
-        card.value === "ACE" ||
-        card.value === "KING" ||
-        card.value === "QUEEN" ||
-        card.value === "JACK"
-    ).length == 2;
-  if (blackJack) {
-    return blackJack;
-  } else {
-    return cards;
-  }
+  return cards;
 }
 function blackCheck(person) {
-  blackJack =
+  let blackJack =
     person.filter(
       (card) =>
         card.value === "ACE" ||
@@ -75,31 +50,45 @@ function blackCheck(person) {
         card.value === "QUEEN" ||
         card.value === "JACK"
     ).length == 2;
-  if (person === true) {
+  if (blackJack === true) {
     return true;
   } else {
     return false;
   }
 }
+function displayCards(person, dom) {
+  if (dom === DOMSelectors.dealer) {
+    dom.insertAdjacentHTML(
+      "beforeend",
+      `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
+      <img src="backCard.jpeg" alt="back of card">`
+    );
+  } else {
+    dom.insertAdjacentHTML(
+      "beforeend",
+      `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
+      <img src="${person[1].image}" alt="${person[1].value} of ${person[1].suit}">`
+    );
+  }
+}
+
 let id = await createNewDeck();
 let dealer = await dealerHand(id);
 let player = await playerHand(id);
-let DblackJack = blackCheck(dealer);
-let Pblackjack = blackCheck(player);
-
-if (DblackJack) {
-} else {
-  DOMSelectors.dealer.insertAdjacentHTML(
+displayCards(dealer, DOMSelectors.dealer);
+displayCards(player, DOMSelectors.player);
+if (!blackCheck(dealer)) {
+  DOMSelectors.buttons.insertAdjacentHTML(
     "beforeend",
-    `<img src="${dealer[0].image}" alt="${dealer[0].value} of ${dealer[0].suit}">
-    <img src="backCard.jpeg" alt="back of card">`
+    `<button id="hit">Hit</button>
+    <button id="stand">Stand</button>
+    <button id="double">Double</button>`
   );
-}
-if (Pblackjack) {
-} else {
-  DOMSelectors.player.insertAdjacentHTML(
-    "beforeend",
-    `<img src="${dealer[0].image}" alt="${dealer[0].value} of ${dealer[0].suit}">
-    <img src="backCard.jpeg" alt="back of card">`
-  );
+  let Mbtn = document.querySelector("#Mbtn");
+  let Lbtn = document.querySelector("#Lbtn");
+  Mbtn.replaceWith(Mbtn.cloneNode(true));
+  Lbtn.replaceWith(Lbtn.cloneNode(true));
+  Mbtn = document.querySelector("#Mbtn");
+  Lbtn = document.querySelector("#Lbtn");
+  Mbtn.addEventListener("click", () => {
 }
