@@ -28,16 +28,8 @@ async function drawCards(deckId, pullNum) {
     console.error("error drawing cards");
   }
 }
-async function newGame() {
-  const id = await createNewDeck();
-  const dealer = await dealerHand();
-  const player = [];
-}
-async function dealerHand(id) {
-  const cards = await drawCards(id, 2);
-  return cards;
-}
-async function playerHand(id) {
+
+async function createHand(id) {
   const cards = await drawCards(id, 2);
   return cards;
 }
@@ -57,6 +49,7 @@ function blackCheck(person) {
   }
 }
 function displayCards(person, dom) {
+  dom.innerHTML = "";
   if (dom === DOMSelectors.dealer) {
     dom.insertAdjacentHTML(
       "beforeend",
@@ -64,17 +57,20 @@ function displayCards(person, dom) {
       <img src="backCard.jpeg" alt="back of card">`
     );
   } else {
-    dom.insertAdjacentHTML(
-      "beforeend",
-      `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
-      <img src="${person[1].image}" alt="${person[1].value} of ${person[1].suit}">`
-    );
+    for (let i = 0; i < person.length; i++) {
+      dom.insertAdjacentHTML(
+        "beforeend",
+        `<img src="${person[i].image}" alt="${person[i].value} of ${person[i].suit}">`
+      );
+    }
   }
 }
 
 let id = await createNewDeck();
-let dealer = await dealerHand(id);
-let player = await playerHand(id);
+let dealer = await createHand(id);
+let player = await createHand(id);
+let newCard = await drawCards(id, 1).cards[0];
+print(newCard);
 displayCards(dealer, DOMSelectors.dealer);
 displayCards(player, DOMSelectors.player);
 if (!blackCheck(dealer)) {
@@ -84,11 +80,14 @@ if (!blackCheck(dealer)) {
     <button id="stand">Stand</button>
     <button id="double">Double</button>`
   );
-  let Mbtn = document.querySelector("#Mbtn");
-  let Lbtn = document.querySelector("#Lbtn");
-  Mbtn.replaceWith(Mbtn.cloneNode(true));
-  Lbtn.replaceWith(Lbtn.cloneNode(true));
-  Mbtn = document.querySelector("#Mbtn");
-  Lbtn = document.querySelector("#Lbtn");
-  Mbtn.addEventListener("click", () => {
+  let hitBtn = document.querySelector("#hit");
+  let standBtn = document.querySelector("#stand");
+  hitBtn.replaceWith(hitBtn.cloneNode(true));
+  standBtn.replaceWith(standBtn.cloneNode(true));
+  hitBtn = document.querySelector("#hit");
+  standBtn = document.querySelector("#stand");
+  hitBtn.addEventListener("click", () => {
+    player.push(newCard);
+    displayCards(player, DOMSelectors.player);
+  });
 }
