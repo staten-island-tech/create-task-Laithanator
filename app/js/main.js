@@ -65,12 +65,25 @@ function displayCards(person, dom) {
     }
   }
 }
-
+async function newCard(id) {
+  let pull = await drawCards(id, 1);
+  let card = pull[0];
+  return card;
+}
+function bust(person) {
+  let total = 0;
+  for (let i = 0; i < person.length; i++) {
+    total += person[i].value;
+  }
+  if (total > 21) {
+    return true;
+  } else {
+    return false;
+  }
+}
 let id = await createNewDeck();
 let dealer = await createHand(id);
 let player = await createHand(id);
-let newCard = await drawCards(id, 1).cards[0];
-print(newCard);
 displayCards(dealer, DOMSelectors.dealer);
 displayCards(player, DOMSelectors.player);
 if (!blackCheck(dealer)) {
@@ -86,8 +99,11 @@ if (!blackCheck(dealer)) {
   standBtn.replaceWith(standBtn.cloneNode(true));
   hitBtn = document.querySelector("#hit");
   standBtn = document.querySelector("#stand");
-  hitBtn.addEventListener("click", () => {
-    player.push(newCard);
+  hitBtn.addEventListener("click", async () => {
+    player.push(await newCard(id));
     displayCards(player, DOMSelectors.player);
+    if (bust(player)) {
+      DOMSelectors.buttons.innerHTML = "";
+    }
   });
 }
