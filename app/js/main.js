@@ -48,21 +48,20 @@ function blackCheck(person) {
     return false;
   }
 }
+function dealerDisplay(person) {
+  DOMSelectors.dealer.insertAdjacentHTML(
+    "beforeend",
+    `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
+  <img src="backCard.jpeg" alt="back of card">`
+  );
+}
 function displayCards(person, dom) {
   dom.innerHTML = "";
-  if (dom === DOMSelectors.dealer) {
+  for (let i = 0; i < person.length; i++) {
     dom.insertAdjacentHTML(
       "beforeend",
-      `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
-      <img src="backCard.jpeg" alt="back of card">`
+      `<img src="${person[i].image}" alt="${person[i].value} of ${person[i].suit}">`
     );
-  } else {
-    for (let i = 0; i < person.length; i++) {
-      dom.insertAdjacentHTML(
-        "beforeend",
-        `<img src="${person[i].image}" alt="${person[i].value} of ${person[i].suit}">`
-      );
-    }
   }
 }
 async function newCard(id) {
@@ -71,21 +70,65 @@ async function newCard(id) {
   return card;
 }
 function bust(person) {
-  let total = 0;
-  for (let i = 0; i < person.length; i++) {
-    total += person[i].value;
-  }
-  if (total > 21) {
+  let total = valueCheck(person);
+  if (total >= 21) {
     return true;
   } else {
     return false;
   }
 }
+//start function coming soon!
 let id = await createNewDeck();
 let dealer = await createHand(id);
 let player = await createHand(id);
-displayCards(dealer, DOMSelectors.dealer);
+dealerDisplay(dealer);
 displayCards(player, DOMSelectors.player);
+function valueCheck(person) {
+  let total = 0;
+  for (let i = 0; i < person.length; i++) {
+    if (
+      person[i].value === "KING" ||
+      person[i].value === "QUEEN" ||
+      person[i].value === "JACK"
+    ) {
+      person[i].value = 10;
+    }
+    if (person[i].value === "ACE") {
+      person[i].value = 11;
+    }
+    let value = Number(person[i].value);
+    total += value;
+  }
+  return total;
+}
+async function endTurn(dealer) {
+  DOMSelectors.buttons.innerHTML = "";
+  let softCap = false;
+  while (!softCap) {
+    displayCards(dealer, DOMSelectors.dealer);
+    if (valueCheck(dealer) >= 17) {
+      softCap = true;
+      winner(dealer, player);
+      break;
+    } else {
+      dealer.push(await newCard(id));
+      displayCards(dealer, DOMSelectors.dealer);
+    }
+  }
+}
+function winner(dealer, player) {
+  let playerTotal = valueCheck(player);
+  let dealerTotal = valueCheck(dealer);
+  let pBust = bust(player);
+  let dBust = bust(dealer);
+  if ((pBust && dBust) || playerTotal === dealerTotal) {
+    DOMSelectors.buttons.innerHTML = "Draw!";
+  } else if (pBust || playerTotal < dealerTotal) {
+    DOMSelectors.buttons.innerHTML = "You lose!";
+  } else if (dBust || playerTotal > dealerTotal) {
+    DOMSelectors.buttons.innerHTML = "You win!";
+  }
+}
 if (!blackCheck(dealer)) {
   DOMSelectors.buttons.insertAdjacentHTML(
     "beforeend",
@@ -95,15 +138,20 @@ if (!blackCheck(dealer)) {
   );
   let hitBtn = document.querySelector("#hit");
   let standBtn = document.querySelector("#stand");
-  hitBtn.replaceWith(hitBtn.cloneNode(true));
-  standBtn.replaceWith(standBtn.cloneNode(true));
-  hitBtn = document.querySelector("#hit");
-  standBtn = document.querySelector("#stand");
+  let doubleBtn = document.querySelector("#double");
   hitBtn.addEventListener("click", async () => {
     player.push(await newCard(id));
     displayCards(player, DOMSelectors.player);
     if (bust(player)) {
-      DOMSelectors.buttons.innerHTML = "";
+      endTurn(dealer);
     }
+  });
+  standBtn.addEventListener("click", () => {
+    eendTurn(dealer);
+  });
+  doubleBtn.addEventListener("click", async () => {
+    player.push(await newCard(id));
+    displayCards(player, DOMSelectors.player);
+    endTurn(dealer);
   });
 }
