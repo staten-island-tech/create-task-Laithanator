@@ -71,7 +71,7 @@ async function newCard(id) {
 }
 function bust(person) {
   let total = valueCheck(person);
-  if (total >= 21) {
+  if (total > 21) {
     return true;
   } else {
     return false;
@@ -99,8 +99,18 @@ function valueCheck(person) {
     let value = Number(person[i].value);
     total += value;
   }
+  for (let i = 0; i < person.length; i++) {
+    if (total > 21) {
+      let ace = aceCheck(person);
+      if (ace !== false) {
+        person[ace].value = 1;
+        total -= 10;
+      }
+    }
+  }
   return total;
 }
+
 async function endTurn(dealer) {
   DOMSelectors.buttons.innerHTML = "";
   let softCap = false;
@@ -116,16 +126,33 @@ async function endTurn(dealer) {
     }
   }
 }
+//change to check only per card
+function aceCheck(person) {
+  for (let i = 0; i < person.length; i++) {
+    if (person[i].value === 11) {
+      return i;
+    } else {
+      return false;
+    }
+  }
+}
 function winner(dealer, player) {
   let playerTotal = valueCheck(player);
   let dealerTotal = valueCheck(dealer);
+  console.log(playerTotal, dealerTotal);
   let pBust = bust(player);
   let dBust = bust(dealer);
-  if ((pBust && dBust) || playerTotal === dealerTotal) {
+  if (pBust && dBust) {
     DOMSelectors.buttons.innerHTML = "Draw!";
-  } else if (pBust || playerTotal < dealerTotal) {
+  } else if (pBust) {
     DOMSelectors.buttons.innerHTML = "You lose!";
-  } else if (dBust || playerTotal > dealerTotal) {
+  } else if (dBust) {
+    DOMSelectors.buttons.innerHTML = "You win!";
+  } else if (playerTotal === dealerTotal) {
+    DOMSelectors.buttons.innerHTML = "Draw!";
+  } else if (playerTotal < dealerTotal) {
+    DOMSelectors.buttons.innerHTML = "You lose!";
+  } else {
     DOMSelectors.buttons.innerHTML = "You win!";
   }
 }
@@ -147,7 +174,7 @@ if (!blackCheck(dealer)) {
     }
   });
   standBtn.addEventListener("click", () => {
-    eendTurn(dealer);
+    endTurn(dealer);
   });
   doubleBtn.addEventListener("click", async () => {
     player.push(await newCard(id));
