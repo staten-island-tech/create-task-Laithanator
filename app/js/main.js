@@ -2,6 +2,9 @@ const DOMSelectors = {
   player: document.getElementById("player"),
   dealer: document.getElementById("dealer"),
   buttons: document.getElementById("buttons"),
+  new: document.getElementById("new"),
+  dTitle: document.getElementById("dealer-title"),
+  pTitle: document.getElementById("player-title"),
 };
 async function createNewDeck() {
   try {
@@ -48,12 +51,15 @@ function blackCheck(person) {
     return false;
   }
 }
-function dealerDisplay(person) {
+function dealerDisplay() {
+  DOMSelectors.dealer.innerHTML = "";
   DOMSelectors.dealer.insertAdjacentHTML(
     "beforeend",
-    `<img src="${person[0].image}" alt="${person[0].value} of ${person[0].suit}">
+    `<img src="${dealer[0].image}" alt="${dealer[0].value} of ${dealer[0].suit}">
   <img src="backCard.jpeg" alt="back of card">`
   );
+  valueCheck(dealer);
+  DOMSelectors.dTitle.innerHTML = `Dealer: ${dealer[0].value}`;
 }
 function displayCards(person, dom) {
   dom.innerHTML = "";
@@ -62,6 +68,11 @@ function displayCards(person, dom) {
       "beforeend",
       `<img src="${person[i].image}" alt="${person[i].value} of ${person[i].suit}">`
     );
+  }
+  if (person === player) {
+    DOMSelectors.pTitle.innerHTML = `Player: ${valueCheck(player)}`;
+  } else {
+    DOMSelectors.dTitle.innerHTML = `Dealer: ${valueCheck(dealer)}`;
   }
 }
 async function newCard(id) {
@@ -77,12 +88,26 @@ function bust(person) {
     return false;
   }
 }
-//start function coming soon!
-let id = await createNewDeck();
-let dealer = await createHand(id);
-let player = await createHand(id);
-dealerDisplay(dealer);
-displayCards(player, DOMSelectors.player);
+let id;
+let dealer;
+let player;
+async function newGame() {
+  id = await createNewDeck();
+  dealer = await createHand(id);
+  player = await createHand(id);
+  dealerDisplay(dealer);
+  displayCards(player, DOMSelectors.player);
+  console.log(`dealer: ${valueCheck(dealer)} player: ${valueCheck(player)}`);
+  if (valueCheck(dealer) === 21 || valueCheck(player) === 21) {
+    endTurn();
+  } else {
+    buttons();
+  }
+}
+newGame();
+DOMSelectors.new.addEventListener("click", () => {
+  newGame();
+});
 function valueCheck(person) {
   let total = 0;
   for (let i = 0; i < person.length; i++) {
@@ -101,7 +126,7 @@ function valueCheck(person) {
   }
   for (let i = 0; i < person.length; i++) {
     if (total > 21) {
-      let ace = aceCheck(person);
+      let ace = aceCheck(person, i);
       if (ace !== false) {
         person[ace].value = 1;
         total -= 10;
@@ -111,7 +136,7 @@ function valueCheck(person) {
   return total;
 }
 
-async function endTurn(dealer) {
+async function endTurn() {
   DOMSelectors.buttons.innerHTML = "";
   let softCap = false;
   while (!softCap) {
@@ -126,20 +151,16 @@ async function endTurn(dealer) {
     }
   }
 }
-//change to check only per card
-function aceCheck(person) {
-  for (let i = 0; i < person.length; i++) {
-    if (person[i].value === 11) {
-      return i;
-    } else {
-      return false;
-    }
+function aceCheck(person, objNum) {
+  if (person[objNum].value === 11) {
+    return objNum;
+  } else {
+    return false;
   }
 }
 function winner(dealer, player) {
   let playerTotal = valueCheck(player);
   let dealerTotal = valueCheck(dealer);
-  console.log(playerTotal, dealerTotal);
   let pBust = bust(player);
   let dBust = bust(dealer);
   if (pBust && dBust) {
@@ -156,29 +177,32 @@ function winner(dealer, player) {
     DOMSelectors.buttons.innerHTML = "You win!";
   }
 }
-if (!blackCheck(dealer)) {
-  DOMSelectors.buttons.insertAdjacentHTML(
-    "beforeend",
-    `<button id="hit">Hit</button>
+async function buttons() {
+  DOMSelectors.buttons.innerHTML = "";
+  if (!blackCheck(dealer)) {
+    DOMSelectors.buttons.insertAdjacentHTML(
+      "beforeend",
+      `<button id="hit">Hit</button>
     <button id="stand">Stand</button>
     <button id="double">Double</button>`
-  );
-  let hitBtn = document.querySelector("#hit");
-  let standBtn = document.querySelector("#stand");
-  let doubleBtn = document.querySelector("#double");
-  hitBtn.addEventListener("click", async () => {
-    player.push(await newCard(id));
-    displayCards(player, DOMSelectors.player);
-    if (bust(player)) {
-      endTurn(dealer);
-    }
-  });
-  standBtn.addEventListener("click", () => {
-    endTurn(dealer);
-  });
-  doubleBtn.addEventListener("click", async () => {
-    player.push(await newCard(id));
-    displayCards(player, DOMSelectors.player);
-    endTurn(dealer);
-  });
+    );
+    let hitBtn = document.querySelector("#hit");
+    let standBtn = document.querySelector("#stand");
+    let doubleBtn = document.querySelector("#double");
+    hitBtn.addEventListener("click", async () => {
+      player.push(await newCard(id));
+      displayCards(player, DOMSelectors.player);
+      if (bust(player)) {
+        endTurn();
+      }
+    });
+    standBtn.addEventListener("click", () => {
+      endTurn();
+    });
+    doubleBtn.addEventListener("click", async () => {
+      player.push(await newCard(id));
+      displayCards(player, DOMSelectors.player);
+      endTurn();
+    });
+  }
 }
