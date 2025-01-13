@@ -43,6 +43,28 @@
       >
         <button id="new" class="btn btn-success w-32">New Game</button>
       </div>
+      <div
+        id="betting"
+        class="absolute bottom-1/4 right-0 w-64 p-4 bg-white rounded-lg border-black border-4"
+      >
+        <form action="submit" class="bet-form">
+          <p id="bet-prompt">
+            Bet:
+            <input class="name border border-black rounded p-1" type="number" />
+          </p>
+          <button
+            id="bet-btn"
+            class="mt-4 px-4 py-2 bg-black text-white rounded"
+          >
+            Place Bet
+          </button>
+        </form>
+      </div>
+      <div
+        class="absolute top-5 right-5 bg-green-200 font-bold rounded-lg border-4 border-black px-4 py-2"
+      >
+        Total Chips: 500
+      </div>
     </div>
     <script type="module" src="./js/main.js"></script>
   </body>

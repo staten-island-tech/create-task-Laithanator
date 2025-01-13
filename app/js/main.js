@@ -5,6 +5,9 @@ const DOMSelectors = {
   new: document.getElementById("new"),
   dTitle: document.getElementById("dealer-title"),
   pTitle: document.getElementById("player-title"),
+  betDiv: document.getElementById("betting"),
+  betBtn: document.getElementById("bet-btn"),
+  betForm: document.getElementById("bet-form"),
 };
 async function createNewDeck() {
   try {
@@ -132,6 +135,7 @@ async function newGame() {
     buttons();
   }
 }
+betting();
 newGame();
 DOMSelectors.new.addEventListener("click", async () => {
   DOMSelectors.new.disabled = true;
@@ -271,4 +275,15 @@ async function buttons() {
       }
     });
   }
+}
+function betting() {
+  DOMSelectors.betForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    let bet = document.querySelector(".name").value;
+
+    if (bet > 0) {
+      DOMSelectors.betDiv.innerHTML = `<p>Player Bet: ${bet}</p>`;
+    }
+  });
 }
