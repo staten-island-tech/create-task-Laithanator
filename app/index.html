@@ -11,12 +11,38 @@
     <div
       class="bg-[url('/backgroundPoker.jpg')] h-screen w-full bg-cover bg-center"
     >
-      <h2 class="text-red-500" id="dealer-title">Dealer</h2>
-      <div id="dealer"><h2></h2></div>
-      <h2 id="player-title">Player</h2>
-      <div id="player"><h2></h2></div>
-      <div id="buttons"></div>
-      <button id="new">New Game</button>
+      <div
+        id="dealer"
+        class="absolute top-0 left-1/2 transform -translate-x-1/2 mt-4 flex flex-wrap justify-center items-center gap-4"
+      >
+        <div class="bg-white border border-black rounded-lg p-2">
+          <h2
+            class="w-full text-center text-2xl font-bold mb-4"
+            id="dealer-title"
+          >
+            Dealer
+          </h2>
+        </div>
+      </div>
+      <div
+        id="player"
+        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-4 flex flex-wrap justify-center items-center gap-4"
+      >
+        <div class="bg-white border border-black rounded-lg p-2">
+          <h2
+            id="player-title"
+            class="w-full text-center text-2xl font-bold mb-4"
+          >
+            Player
+          </h2>
+        </div>
+      </div>
+      <div
+        id="buttons"
+        class="absolute left-0 bottom-[25vh] flex flex-col gap-4 ml-4"
+      >
+        <button id="new" class="btn btn-success w-32">New Game</button>
+      </div>
     </div>
     <script type="module" src="./js/main.js"></script>
   </body>
